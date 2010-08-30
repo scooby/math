@@ -1,0 +1,63 @@
+Devising a canonical number type
+
+We'll call the type "Polynomial" which I'm taking to mean a Sum of
+Products. I think Sum of Products might not be used, since that could
+refer to both numeric and boolean expressions. The equivalent to
+Polynomial in boolean arithmetic would be a disjunction of conjunctions.
+
+(Since disjunction (or) is similar to summing (0+1=1, and F OR T = T,
+and just pretend that 1+1=1 ;-) and conjunction (and) is similar to 
+product (0*1 = 0 and F AND T = T). The idea is used in computer 
+engineering.)
+
+What about x^2/3? I think for now that there should be a radical
+function, so it would be radical(3)(x^2). I'll have to find out
+if there's a good way of dealing with complex
+x*a^b/c*d^e/f*...+y*g^h/i*j^k/l*...+... expressions.
+
+The representation of Polynomial is a relation type with header {coeff
+Rational, pk:multiplier Multiplier}.
+
+((A rational can be expressed as sign * mantissa * base ^ exponent, or as
+sign * whole / whole.))
+
+Multiplier is a relation type with header {symbol Symbol, power
+Integer}.
+
+Values of type Symbol include constants like 'e' (as in f(x)=e^x, 
+f'(x)=e^x), 'pi', Unknowns ('x', 'y', 'n' or whatever your favorite 
+variables are), or 'i' (as in sqrt(-1)) or 'one' which just means the
+number one.
+
+Also, values of type symbol can be measurement units, like meters,
+seconds, radians, degrees (angles, Farenheit, Celsius). I'm a little
+unsure about logarithmic scales like decibels and scales with an
+absolute zero like temperature. Maybe some posts on usenet would dig up
+answers.
+
+Simple linear relativistic units like distance, time and force should be
+the most straightforward to handle.
+
+Now, to actually work with values, we need to make sure they are in
+canonical form. This means that Polynomials may be ApocryphalPolynomials
+or CanonicalPolynomials. (If it's not Canonical, it's Apocryphal.)
+
+A CanonicalPolynomial is a Polynomial if it's true that:
+Its relation is in 1NF (always given).
+The values for coeff are CanonicalRationals. (That is, if they are
+expressed as, say, a/b, gcd(a,b) = 1).
+The values for coeff are not zero.
+The values for multiplier are CanonicalMultipliers.
+The types for CanonicalMultipliers must be homogenous:
+There may be a single CanonicalUnitMultiplier,
+... or any number of CanonicalVectorMultipliers,
+... or any number of CanonicalGenericMultipliers.
+
+A Multiplier is a CanonicalMultiplier if it's true that for every tuple:
+The value of symbol is a CanonicalSymbol.
+The value of power is canonical for that symbol, in other words, 'i'
+must have a power of -1 or 1, '1' must have a power of 1, and no symbols
+should have a power of 0. Tuples with powers of 0 should be removed.
+There should be no more than one symbol of type BaseVector.
+(A BaseVector's canonical power is 1.)
+

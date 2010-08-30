@@ -1,0 +1,32 @@
+IntToComp = Compile[{{y, _Integer}},
+	Dot[Reverse[IntegerDigits[y, 2]], Table[(I - 1) ^ x, {x, 0, Length[IntegerDigits[y, 2]] - 1}]]
+];
+
+ReFast = Table[Re[(I - 1)^x], {x, 0, 7}];
+ImFast = Table[Im[(I - 1)^x], {x, 0, 7}];
+P2Fast = Table[2^x, {x, 0, 7}];
+
+IntToCompFX = 
+  Compile[ {{i, _Integer}, {P2F, _Integer, 2}, {ReF, _Integer, 2}, {ImF, _Integer, 2}}, 
+    Module[{n = i, rr = 0, ri = 0, q = 1, x, nn},
+      While[n > 0, 
+        nn = BitAnd[n, 255];
+        For[x = 1, x < 9, x++, 
+          If[BitAnd[nn, P2F[[x]]] != 0, 
+            rr += q*ReF[[x]];
+            ri += q*ImF[[x]];
+          ];
+        ];
+        q *= 16;
+        n = Quotient[n, 256]
+      ];
+      Complex[rr, ri]
+    ]
+  ,
+  {{rr, _Integer}, {ri, _Integer}, {n, _Integer}, {q, _Integer}, {nn, _Integer}, {x, _Integer}, {ReF[[_]], _Integer}, {ImF[[_]], _Integer}, {P2F[[_]], _Integer}}];
+
+IntToCompF[i_] := IntToCompFX[i, P2Fast, ReFast, ImFast];
+
+Stopwatch = 
+    Table[Timing[For[x = 0, x < 10^y, x++, #1[x]]][[1]]/10^y, {y, 1, 5}] &;
+
